@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rash Model Baholash</title>
+
+    <!-- CSS 📌 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Favicon (ixtiyoriy) -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+
+    <!-- Modal: Nechta savol kiritilishi -->
+    <div id="questionCountModal" class="modal">
+        <div class="modal-content">
+            <h3>Nechta savol kiritmoqchisiz?</h3>
+            <input type="number" id="questionCountInput" min="1" placeholder="Masalan: 10">
+            <button id="saveQuestionCountBtn" class="primary" type="button">Tasdiqlash</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Test natijalarini kiritish</h1>
+
+        <!-- Forma bo‘limi -->
+        <div id="formContainer">
+            <!-- Dinamik o‘quvchi formasi JS orqali shu yerga qo‘shiladi -->
+        </div>
+
+        <!-- O‘quvchi qo‘shish / o‘chirish tugmalari -->
+        <div class="button-group">
+            <button id="addStudentBtn" class="primary" type="button">➕ Yangi o‘quvchi qo‘shish</button>
+            <button class="delete-student" type="button">❌ O‘quvchini o‘chirish</button>
+        </div>
+
+        <!-- Navigatsiya tugmalari -->
+        <div class="button-group">
+            <button id="prevStudentBtn" class="primary" type="button">⬅️ Oldingi</button>
+            <button id="nextStudentBtn" class="primary" type="button">➡️ Keyingi</button>
+        </div>
+
+        <!-- Yakunlash -->
+        <div class="button-group secondary">
+            <button id="finishBtn" class="finish" type="button">✅ Yakunlash</button>
+        </div>
+
+        <!-- Natijalar bo‘limi -->
+        <div id="resultsContainer">
+            <!-- Yakunlash tugmasi bosilganda natijalar va Excel tugmasi shu yerga qo‘shiladi -->
+        </div>
+    </div>
+
+    <!-- JS 📌 -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
