@@ -1,247 +1,286 @@
-let studentIndex = 0;
-let students = [];
-let questionCount = 3; // default, modal orqali o‘zgartiriladi
+/**
+ * Rash Model Baholash - Dinamik savollar soni bilan optimallashgan JS
+ */
 
-// Modal oynani ochish
-const modal = document.getElementById('questionCountModal');
-modal.style.display = "flex";
+let studentsData = [];
+let currentStudentIndex = 0;
+let questionCount = 0;
 
-// Modal orqali savollar sonini olish
-document.getElementById('saveQuestionCountBtn').onclick = () => {
-    const val = parseInt(document.getElementById('questionCountInput').value);
-    if (!val || val < 1) {
-        alert("Savollar soni noto‘g‘ri!");
-        return;
-    }
-    questionCount = val;
-    students = [createStudent()]; // birinchi student
-    studentIndex = 0;
-    modal.style.display = "none";
-    renderForm(students[0]);
-};
+// Elementlarni tanlab olish
+const questionCountModal = document.getElementById('questionCountModal');
+const questionCountInput = document.getElementById('questionCountInput');
+const saveQuestionCountBtn = document.getElementById('saveQuestionCountBtn');
+const formContainer = document.getElementById('formContainer');
+const addStudentBtn = document.getElementById('addStudentBtn');
+const prevStudentBtn = document.getElementById('prevStudentBtn');
+const nextStudentBtn = document.getElementById('nextStudentBtn');
+const finishBtn = document.getElementById('finishBtn');
+const uploadExcelInput = document.getElementById('uploadExcel');
+const fileStatus = document.getElementById('fileStatus');
+const clearDataBtn = document.getElementById('clearDataBtn');
 
-// Yangi o'quvchi yaratish
-function createStudent() {
-    return {
-        name: '',
-        answers: Array(questionCount).fill(''),
-        score: 0
-    };
+/**
+ * 1. Ilovani ishga tushirish
+ * Oyna miltillab o'chib ketmasligi uchun har doim modalni ko'rsatamiz
+ */
+function initApp() {
+    // Eski saqlangan ma'lumotlarni tozalaymiz (yangi seans uchun)
+    localStorage.removeItem('questionCount');
+    studentsData = [];
+    currentStudentIndex = 0;
+
+    // Modal oynani ko'rsatish
+    questionCountModal.style.display = 'flex';
+    questionCountInput.value = ""; 
+    questionCountInput.focus();
 }
 
-// Shake animatsiyasi
-function shakeInput(input) {
-    input.classList.add('shake');
-    setTimeout(() => input.classList.remove('shake'), 500);
-}
-
-// Validatsiya
-function validateStudent(student) {
-    let valid = true;
-    const nameInput = document.querySelector('#formContainer input[type="text"]');
-    if (!student.name.trim()) {
-        shakeInput(nameInput);
-        valid = false;
-    }
-
-    const answerInputs = document.querySelectorAll('#formContainer input[type="number"]');
-    answerInputs.forEach((input, i) => {
-        const val = student.answers[i];
-        if (val !== '0' && val !== '1') {
-            shakeInput(input);
-            valid = false;
-        }
-    });
-
-    return valid;
-}
-
-// Formani render qilish
-function renderForm(student) {
-    const container = document.getElementById('formContainer');
-    container.innerHTML = '';
-
-    // Sarlavha
-    const heading = document.createElement('h3');
-    heading.textContent = `${studentIndex + 1}-o‘quvchi`;
-    container.appendChild(heading);
-
-    // Ism input
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.placeholder = 'Ism Familiya';
-    nameInput.value = student.name;
-    nameInput.oninput = e => student.name = e.target.value;
-    container.appendChild(nameInput);
-
-    // Javoblar container (gorizontal grid)
-    const answersDiv = document.createElement('div');
-    answersDiv.className = 'test-input';
-    student.answers.forEach((val, i) => {
-        const pair = document.createElement('div');
-        pair.className = 'answer-pair';
-
-        const span = document.createElement('span');
-        span.textContent = (i + 1); // raqam yuqorida
-
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = 0;
-        input.max = 1;
-        input.value = val;
-        input.oninput = e => student.answers[i] = e.target.value;
-
-        pair.appendChild(span);
-        pair.appendChild(input);
-        answersDiv.appendChild(pair);
-    });
-    container.appendChild(answersDiv);
-
-    // O‘quvchini o‘chirish tugmasi
-    const deleteStudentBtn = document.createElement('button');
-    deleteStudentBtn.textContent = '❌ O‘quvchini o‘chirish';
-    deleteStudentBtn.classList.add('delete-student');
-    deleteStudentBtn.onclick = () => {
-        if (!confirm('Haqiqatan ham bu o‘quvchini o‘chirmoqchimisiz?')) return;
-
-        students.splice(studentIndex, 1);
-        if (students.length === 0) {
-            students.push(createStudent());
-            studentIndex = 0;
-        } else if (studentIndex >= students.length) {
-            studentIndex = students.length - 1;
-        }
-        renderForm(students[studentIndex]);
-    };
-    container.appendChild(deleteStudentBtn);
-}
-
-// Tugmalar ishlashi
-document.getElementById('addStudentBtn').onclick = () => {
-    const currentStudent = students[studentIndex];
-    if (!validateStudent(currentStudent)) return;
-
-    const newStudent = createStudent();
-    students.push(newStudent);
-    studentIndex = students.length - 1;
-    renderForm(newStudent);
-};
-
-document.getElementById('prevStudentBtn').onclick = () => {
-    if (studentIndex > 0) {
-        studentIndex--;
-        renderForm(students[studentIndex]);
-    }
-};
-
-document.getElementById('nextStudentBtn').onclick = () => {
-    const currentStudent = students[studentIndex];
-    if (!validateStudent(currentStudent)) return;
-
-    if (studentIndex < students.length - 1) {
-        studentIndex++;
+/**
+ * 2. Savollar sonini tasdiqlash
+ */
+saveQuestionCountBtn.addEventListener('click', () => {
+    const count = parseInt(questionCountInput.value);
+    if (count > 0 && count <= 100) {
+        questionCount = count;
+        // Xotiraga saqlash (ixtiyoriy, lekin seans davomida kerak bo'lishi mumkin)
+        localStorage.setItem('questionCount', count);
+        
+        // Modalni yopish va birinchi o'quvchini yaratish
+        questionCountModal.style.display = 'none';
+        addStudent();
     } else {
-        const newStudent = createStudent();
-        students.push(newStudent);
-        studentIndex++;
+        alert("Iltimos, 1 dan 100 gacha son kiriting.");
+        questionCountInput.focus();
     }
-    renderForm(students[studentIndex]);
-};
+});
 
-// Yakunlash
-document.getElementById('finishBtn').onclick = () => {
-    for (let s of students) {
-        if (!validateStudent(s)) {
-            alert("❌ Ba'zi o‘quvchilar to‘liq emas!");
-            return;
+/**
+ * 3. Validatsiya (Xatolarni ko'rsatish)
+ */
+function validateCurrentStudent() {
+    if (studentsData.length === 0) return true;
+
+    const student = studentsData[currentStudentIndex];
+    const nameInput = document.getElementById('studentNameInput');
+    const table = document.querySelector('.answers-table');
+    let isValid = true;
+
+    if (!student.name || student.name.trim() === "") {
+        nameInput.classList.add('shake-error', 'input-error');
+        setTimeout(() => nameInput.classList.remove('shake-error'), 400);
+        isValid = false;
+    }
+
+    if (table) {
+        const headers = table.querySelectorAll('thead th');
+        student.answers.forEach((ans, index) => {
+            const questionPos = index + 1;
+            const headerCell = headers[questionPos];
+            const cells = table.querySelectorAll(`td:nth-child(${questionPos + 1})`);
+
+            if (ans === null) {
+                isValid = false;
+                headerCell.classList.add('header-error');
+                cells.forEach(cell => cell.classList.add('cell-error'));
+            } else {
+                headerCell.classList.remove('header-error');
+                cells.forEach(cell => cell.classList.remove('cell-error'));
+            }
+        });
+    }
+    return isValid;
+}
+
+/**
+ * 4. O'quvchi qo'shish va ko'rsatish
+ */
+function addStudent() {
+    if (studentsData.length > 0 && !validateCurrentStudent()) {
+        return; // Validatsiyadan o'tmasa yangi qo'shmaydi
+    }
+
+    studentsData.push({
+        name: '',
+        answers: Array(questionCount).fill(null)
+    });
+    currentStudentIndex = studentsData.length - 1;
+    displayCurrentStudent();
+}
+
+function displayCurrentStudent() {
+    if (questionCount === 0 || studentsData.length === 0) return;
+
+    const student = studentsData[currentStudentIndex];
+    
+    // Jadval sarlavhasi (1, 2, 3...)
+    let headerHtml = '<td>Javob</td>';
+    for (let i = 1; i <= questionCount; i++) {
+        headerHtml += `<th>${i}</th>`;
+    }
+
+    // Radio qatorlari (1 va 0)
+    const generateRow = (score) => {
+        let cells = `<th>${score}</th>`;
+        for (let i = 0; i < questionCount; i++) {
+            const isChecked = student.answers[i] === score ? 'checked' : '';
+            cells += `
+                <td>
+                    <input type="radio" id="ans_${score}_${i}" name="q_${i}" 
+                           value="${score}" ${isChecked} 
+                           onchange="updateAnswer(${i}, ${score})">
+                    <label for="ans_${score}_${i}"></label>
+                </td>`;
         }
-    }
-
-    const payload = {
-        students: students.map(s => ({
-            name: s.name,
-            answers: s.answers.map(a => parseInt(a) || 0)
-        }))
+        return cells;
     };
 
-    fetch('/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        data.forEach((res, i) => students[i].score = res.score);
-        renderResults();
-    })
-    .catch(error => {
-        console.error('Xatolik:', error);
-        alert("❌ Hisoblashda xatolik yuz berdi.");
-    });
+    formContainer.innerHTML = `
+        <div class="student-form card animate-fade-in">
+            <h2>👤 ${currentStudentIndex + 1}-o‘quvchi / ${studentsData.length}</h2>
+            <div class="name-delete-group" style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="text" id="studentNameInput" class="form-control"
+                       value="${student.name}" 
+                       placeholder="O'quvchi ismini kiriting..." 
+                       oninput="updateName(this.value)">
+                <button class="btn delete-btn" type="button" onclick="deleteCurrentStudent()">❌ O‘chirish</button>
+            </div>
+            <div class="answers-section">
+                <div style="overflow-x: auto; border-radius: 8px; border: 1px solid #eee;">
+                    <table class="answers-table">
+                        <thead><tr>${headerHtml}</tr></thead>
+                        <tbody>
+                            <tr>${generateRow(1)}</tr>
+                            <tr>${generateRow(0)}</tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    updateNavButtons();
+}
+
+/**
+ * 5. Ma'lumotlarni yangilash
+ */
+window.updateAnswer = function(questionIndex, value) {
+    if (studentsData[currentStudentIndex]) {
+        studentsData[currentStudentIndex].answers[questionIndex] = value;
+        
+        // Belgilangan zahoti qizil rangni o'chirish
+        const table = document.querySelector('.answers-table');
+        if (table) {
+            const headers = table.querySelectorAll('thead th');
+            headers[questionIndex + 1].classList.remove('header-error');
+            const cells = table.querySelectorAll(`td:nth-child(${questionIndex + 2})`);
+            cells.forEach(c => c.classList.remove('cell-error'));
+        }
+    }
 };
 
-// Natijalarni chiqarish va Excel
-function renderResults() {
-    const container = document.getElementById('resultsContainer');
-    container.innerHTML = '<h2>Natijalar:</h2>';
-
-    const table = document.createElement('table');
-    const headerRow = document.createElement('tr');
-    ['#', 'Ism Familiya', 'Javoblar', 'Baholash'].forEach(h => {
-        const th = document.createElement('th');
-        th.textContent = h;
-        headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
-
-    students.forEach((s, i) => {
-        const tr = document.createElement('tr');
-        [i + 1, s.name, s.answers.join(', '), s.score].forEach(text => {
-            const td = document.createElement('td');
-            td.textContent = text;
-            tr.appendChild(td);
-        });
-        table.appendChild(tr);
-    });
-
-    container.appendChild(table);
-
-    const exportBtn = document.createElement('button');
-    exportBtn.textContent = '⬇️ Excelga yuklash';
-    exportBtn.classList.add('primary');
-    exportBtn.onclick = exportToExcel;
-    container.appendChild(exportBtn);
-
-    alert("✅ Hisoblash yakunlandi! Natijalar pastda ko‘rsatilmoqda.");
-}
-
-// Excelga eksport
-function exportToExcel() {
-    const wb = XLSX.utils.book_new();
-
-    students.forEach((student, idx) => {
-        const sheetName = student.name.substring(0, 28) + (idx + 1);
-        const sheetData = [
-            ['Ism', 'Javoblar', 'Baholash'],
-            [student.name, student.answers.join(', '), student.score]
-        ];
-        const ws = XLSX.utils.aoa_to_sheet(sheetData);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    });
-
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-    function s2ab(s) {
-        const buf = new ArrayBuffer(s.length);
-        const view = new Uint8Array(buf);
-        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
+window.updateName = function(newName) {
+    if (studentsData[currentStudentIndex]) {
+        studentsData[currentStudentIndex].name = newName;
+        const input = document.getElementById('studentNameInput');
+        if (newName.trim() !== "") input.classList.remove('input-error');
     }
+};
 
-    const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'rash_modeli_natijalari.xlsx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+/**
+ * 6. Boshqaruv
+ */
+function updateNavButtons() {
+    prevStudentBtn.disabled = currentStudentIndex === 0;
+    nextStudentBtn.disabled = currentStudentIndex === studentsData.length - 1;
 }
+
+prevStudentBtn.onclick = () => {
+    if (currentStudentIndex > 0) {
+        currentStudentIndex--;
+        displayCurrentStudent();
+    }
+};
+
+nextStudentBtn.onclick = () => {
+    if (validateCurrentStudent()) {
+        currentStudentIndex++;
+        displayCurrentStudent();
+    }
+};
+
+addStudentBtn.onclick = addStudent;
+
+window.deleteCurrentStudent = function() {
+    if (studentsData.length > 1) {
+        if (confirm("Ushbu o'quvchini ro'yxatdan o'chirasizmi?")) {
+            studentsData.splice(currentStudentIndex, 1);
+            currentStudentIndex = Math.max(0, currentStudentIndex - 1);
+            displayCurrentStudent();
+        }
+    } else {
+        alert("Kamida bitta o'quvchi bo'lishi shart!");
+    }
+};
+
+/**
+ * 7. Excel va Yakunlash
+ */
+uploadExcelInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    fileStatus.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+        try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+            const imported = json.slice(1).filter(row => row.length > 0).map(row => ({
+                name: row[0] ? String(row[0]).trim() : "Noma'lum",
+                answers: row.slice(1, questionCount + 1).map(v => {
+                    let val = parseInt(v);
+                    return (val === 0 || val === 1) ? val : null;
+                })
+            }));
+
+            if (imported.length > 0) {
+                studentsData = imported;
+                currentStudentIndex = 0;
+                displayCurrentStudent();
+                clearDataBtn.style.display = 'inline-flex';
+            }
+        } catch (err) {
+            alert("Excel faylni o'qishda xatolik!");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+};
+
+finishBtn.onclick = async () => {
+    if (!validateCurrentStudent()) return;
+    
+    finishBtn.disabled = true;
+    finishBtn.innerHTML = '⌛ Hisoblanmoqda...';
+
+    try {
+        const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ students: studentsData })
+        });
+        const result = await response.json();
+        console.log("Natijalar:", result);
+        alert("Hisoblash yakunlandi! Natijalarni konsolda ko'rishingiz mumkin.");
+    } catch (err) {
+        alert("Server bilan aloqa xatosi!");
+    } finally {
+        finishBtn.disabled = false;
+        finishBtn.innerHTML = '✅ Yakunlash va Natija';
+    }
+};
+
+// Dasturni ishga tushirish
+document.addEventListener('DOMContentLoaded', initApp);

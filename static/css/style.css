@@ -1,241 +1,338 @@
-/* Umumiy tanlovlar */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  padding: 20px;
-  margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e9ecef;
+    color: #343a40;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
 }
 
 .container {
-  max-width: 900px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 30px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  text-align: center;
-  color: #4CAF50;
-  margin-bottom: 30px;
+    text-align: center;
+    color: #28a745; /* Yashil */
+    margin-bottom: 35px;
+    font-weight: 600;
 }
 
-h3 {
-  color: #333;
-  margin-bottom: 15px;
+hr {
+    border: 0;
+    border-top: 1px solid #dee2e6;
+    margin: 25px 0;
 }
 
-/* Inputlar */
-input[type="text"], input[type="number"] {
-  padding: 6px;
-  margin: 5px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  text-align: center;
-  font-size: 16px;
-  transition: border 0.3s ease, transform 0.2s ease;
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.1s;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
 }
 
-input[type="text"] {
-  width: 250px;
+.btn:hover {
+    transform: translateY(-1px);
 }
 
-input[type="number"] {
-  width: 50px; /* kichikroq, faqat 0/1 uchun */
-  height: 35px;
-  font-size: 16px;
-  -moz-appearance: textfield; /* Firefox uchun spin tugma yo'q */
+.btn:active {
+    transform: translateY(0);
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.btn.primary {
+    background-color: #007bff; /* Moviy */
+    color: white;
+}
+.btn.primary:hover {
+    background-color: #0056b3;
 }
 
-/* Tugmalar umumiy */
-button {
-  padding: 8px 18px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.3s ease;
+.btn.success {
+    background-color: #28a745; /* Yashil */
+    color: white;
+}
+.btn.success:hover {
+    background-color: #1e7e34;
 }
 
-button:hover {
-  opacity: 0.9;
+.btn.secondary {
+    background-color: #6c757d; /* Kulrang */
+    color: white;
+}
+.btn.secondary:hover {
+    background-color: #5a6268;
 }
 
-/* Tugmalar ranglari */
-button.primary {
-  background-color: #4CAF50;
-  color: white;
+.btn.delete-btn {
+    background-color: #dc3545; /* Qizil */
+    color: white;
+}
+.btn.delete-btn:hover {
+    background-color: #c82333;
 }
 
-button.primary:hover {
-  background-color: #45a049;
+.btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
 }
 
-button.delete-student {
-  background-color: #f44336;
-  color: white;
-}
-
-button.delete-student:hover {
-  background-color: #d32f2f;
-}
-
-button.finish {
-  background-color: #2196F3;
-  color: white;
-}
-
-button.finish:hover {
-  background-color: #1976D2;
-}
-
-/* Tugmalar containeri */
 .button-group {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 15px 0;
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
 }
 
-/* Form container */
-#formContainer {
-  margin-bottom: 30px;
+.top-controls {
+    justify-content: flex-end;
 }
 
-/* Javoblar containeri: gorizontal grid */
-.test-input {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  gap: 10px;
-  row-gap: 15px; /* qatorlar orasidagi masofa */
-  justify-content: start;
-  margin-top: 20px;
+.nav-controls {
+    justify-content: space-between;
 }
 
-.answer-pair {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid #007bff;
+    border-radius: 8px;
+    background-color: #f8f9fa;
 }
 
-.answer-pair span {
-  font-weight: bold;
+.upload-btn {
+    background-color: #17a2b8; 
+    color: white;
+}
+.upload-btn:hover {
+    background-color: #138496;
 }
 
-/* Natijalar bo‘limi */
-#resultsContainer {
-  margin-top: 40px;
+.file-status-text {
+    font-style: italic;
+    color: #495057;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
 }
 
-#resultsContainer table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
+.small-delete-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
-#resultsContainer th, #resultsContainer td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: center;
+.student-form {
+    padding: 20px;
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    background-color: #fafffa;
+    transition: border-color 0.3s;
 }
 
-#resultsContainer th {
-  background-color: #4CAF50;
-  color: white;
+.student-form h2 {
+    font-size: 1.6em;
+    color: #28a745;
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
-#resultsContainer button {
-  margin-top: 15px;
-  padding: 10px 25px;
-  font-size: 16px;
+.name-delete-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-/* Shake animatsiyasi ism va javob kataklari uchun */
+#studentNameInput {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
 @keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
-  100% { transform: translateX(0); }
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
 }
 
-.shake {
-  animation: shake 0.4s;
-  border: 2px solid #f44336 !important;
+.shake-error {
+    animation: shake 0.4s ease-in-out;
 }
 
-/* Modal oynasi */
+.input-error {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+.cell-error {
+    background-color: #ffcccc !important; /* Och qizil fon */
+    border: 2px solid #dc3545 !important; /* Qizil hoshiya */
+    transition: all 0.3s;
+}
+
+.header-error {
+    color: #dc3545 !important;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.table-error {
+    border: 2px solid #dc3545 !important;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.answers-table {
+    width: auto; 
+    border-collapse: collapse;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.85rem;
+    table-layout: fixed;
+}
+
+.answers-table th, .answers-table td {
+    border: 1px solid #e9ecef;
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+    padding: 6px 0;
+    box-sizing: border-box;
+}
+
+.answers-table th:first-child, 
+.answers-table td:first-child {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    background-color: #f1f3f5;
+    font-weight: 600;
+}
+
+.answers-table th {
+    background-color: #f1f3f5;
+    font-weight: 500;
+    color: #495057;
+}
+
+.answers-table td {
+    background-color: #fff;
+    vertical-align: middle;
+}
+
+.answers-table input[type="radio"] {
+    display: none;
+}
+
+.answers-table input[type="radio"] + label {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+    border: 2px solid #adb5bd;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.answers-table input[type="radio"]:checked + label {
+    background-color: #28a745; 
+    border-color: #1e7e34;
+    position: relative;
+    box-shadow: inset 0 0 0 3px white; 
+}
+
+.student-form {
+    overflow-x: auto;
+}
 .modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
-  background-color: #fff;
-  padding: 25px 30px;
-  border-radius: 10px;
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-.modal-content input[type="number"] {
-  width: 100px;
-  margin-right: 10px;
+.modal-content h2 {
+    color: #007bff;
 }
 
-.modal-content button {
-  padding: 8px 20px;
-  font-size: 15px;
+#questionCountInput {
+    width: 70%;
+    padding: 10px;
+    margin: 15px 0 25px 0;
+    border: 2px solid #ced4da;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
-/* Mobil uchun responsive */
-@media (max-width: 600px) {
-  input[type="text"], input[type="number"] {
-    width: 100%;
-    font-size: 14px;
-  }
+.info-message, .success-message {
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+}
 
-  .test-input {
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 8px;
-    row-gap: 12px;
-  }
+.info-message {
+    background-color: #e9f7fe;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
 
-  .answer-pair {
-    width: 100%;
-    justify-content: center;
-  }
+.results-box {
+    margin-top: 30px;
+    padding: 25px;
+    border: 2px solid #28a745;
+    border-radius: 10px;
+    background-color: #f8fff8;
+    text-align: center;
+}
 
-  .button-group {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 20px;
-  }
+.download-btn {
+    background-color: #6f42c1; /* Binafsha */
+    color: white;
+    margin-top: 20px;
+}
+.download-btn:hover {
+    background-color: #5931a7;
 }
