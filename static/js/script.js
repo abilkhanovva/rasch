@@ -1,12 +1,8 @@
-/**
- * Rash Model Baholash - Dinamik savollar soni bilan optimallashgan JS
- */
-
 let studentsData = [];
 let currentStudentIndex = 0;
 let questionCount = 0;
 
-// Elementlarni tanlab olish
+// DOM elementlarini tanlab olish
 const questionCountModal = document.getElementById('questionCountModal');
 const questionCountInput = document.getElementById('questionCountInput');
 const saveQuestionCountBtn = document.getElementById('saveQuestionCountBtn');
@@ -18,36 +14,37 @@ const finishBtn = document.getElementById('finishBtn');
 const uploadExcelInput = document.getElementById('uploadExcel');
 const fileStatus = document.getElementById('fileStatus');
 const clearDataBtn = document.getElementById('clearDataBtn');
+const resultContainer = document.getElementById('resultContainer');
+const resultContent = document.getElementById('resultContent');
 
 /**
- * 1. Ilovani ishga tushirish
- * Oyna miltillab o'chib ketmasligi uchun har doim modalni ko'rsatamiz
+ * Ilovani boshlang'ich holatga qaytarish
  */
 function initApp() {
-    // Eski saqlangan ma'lumotlarni tozalaymiz (yangi seans uchun)
     localStorage.removeItem('questionCount');
     studentsData = [];
     currentStudentIndex = 0;
+    
+    if (resultContainer) resultContainer.style.display = 'none';
+    if (formContainer) formContainer.innerHTML = '';
 
-    // Modal oynani ko'rsatish
     questionCountModal.style.display = 'flex';
-    questionCountInput.value = ""; 
+    questionCountInput.value = " "; 
     questionCountInput.focus();
+    
+    if (clearDataBtn) clearDataBtn.style.display = 'none';
 }
 
 /**
- * 2. Savollar sonini tasdiqlash
+ * Savollar sonini tasdiqlash
  */
 saveQuestionCountBtn.addEventListener('click', () => {
     const count = parseInt(questionCountInput.value);
     if (count > 0 && count <= 100) {
         questionCount = count;
-        // Xotiraga saqlash (ixtiyoriy, lekin seans davomida kerak bo'lishi mumkin)
         localStorage.setItem('questionCount', count);
-        
-        // Modalni yopish va birinchi o'quvchini yaratish
         questionCountModal.style.display = 'none';
-        addStudent();
+        addStudent(); 
     } else {
         alert("Iltimos, 1 dan 100 gacha son kiriting.");
         questionCountInput.focus();
@@ -55,7 +52,7 @@ saveQuestionCountBtn.addEventListener('click', () => {
 });
 
 /**
- * 3. Validatsiya (Xatolarni ko'rsatish)
+ * Joriy o'quvchi ma'lumotlari to'ldirilganini tekshirish
  */
 function validateCurrentStudent() {
     if (studentsData.length === 0) return true;
@@ -66,8 +63,10 @@ function validateCurrentStudent() {
     let isValid = true;
 
     if (!student.name || student.name.trim() === "") {
-        nameInput.classList.add('shake-error', 'input-error');
-        setTimeout(() => nameInput.classList.remove('shake-error'), 400);
+        if (nameInput) {
+            nameInput.classList.add('shake-error', 'input-error');
+            setTimeout(() => nameInput.classList.remove('shake-error'), 400);
+        }
         isValid = false;
     }
 
@@ -80,10 +79,10 @@ function validateCurrentStudent() {
 
             if (ans === null) {
                 isValid = false;
-                headerCell.classList.add('header-error');
+                if (headerCell) headerCell.classList.add('header-error');
                 cells.forEach(cell => cell.classList.add('cell-error'));
             } else {
-                headerCell.classList.remove('header-error');
+                if (headerCell) headerCell.classList.remove('header-error');
                 cells.forEach(cell => cell.classList.remove('cell-error'));
             }
         });
@@ -92,12 +91,10 @@ function validateCurrentStudent() {
 }
 
 /**
- * 4. O'quvchi qo'shish va ko'rsatish
+ * Ro'yxatga yangi o'quvchi qo'shish
  */
 function addStudent() {
-    if (studentsData.length > 0 && !validateCurrentStudent()) {
-        return; // Validatsiyadan o'tmasa yangi qo'shmaydi
-    }
+    if (studentsData.length > 0 && !validateCurrentStudent()) return;
 
     studentsData.push({
         name: '',
@@ -107,18 +104,19 @@ function addStudent() {
     displayCurrentStudent();
 }
 
+/**
+ * Joriy o'quvchi formasini chizish
+ */
 function displayCurrentStudent() {
     if (questionCount === 0 || studentsData.length === 0) return;
 
     const student = studentsData[currentStudentIndex];
     
-    // Jadval sarlavhasi (1, 2, 3...)
-    let headerHtml = '<td>Javob</td>';
+    let headerHtml = '<td>Ball / Savol</td>';
     for (let i = 1; i <= questionCount; i++) {
         headerHtml += `<th>${i}</th>`;
     }
 
-    // Radio qatorlari (1 va 0)
     const generateRow = (score) => {
         let cells = `<th>${score}</th>`;
         for (let i = 0; i < questionCount; i++) {
@@ -135,43 +133,37 @@ function displayCurrentStudent() {
     };
 
     formContainer.innerHTML = `
-        <div class="student-form card animate-fade-in">
+        <div class="student-form animate-fade-in">
             <h2>👤 ${currentStudentIndex + 1}-o‘quvchi / ${studentsData.length}</h2>
-            <div class="name-delete-group" style="display:flex; gap:10px; margin-bottom:20px;">
-                <input type="text" id="studentNameInput" class="form-control"
+            <div class="name-delete-group">
+                <input type="text" id="studentNameInput" 
                        value="${student.name}" 
                        placeholder="O'quvchi ismini kiriting..." 
                        oninput="updateName(this.value)">
                 <button class="btn delete-btn" type="button" onclick="deleteCurrentStudent()">❌ O‘chirish</button>
             </div>
             <div class="answers-section">
-                <div style="overflow-x: auto; border-radius: 8px; border: 1px solid #eee;">
-                    <table class="answers-table">
-                        <thead><tr>${headerHtml}</tr></thead>
-                        <tbody>
-                            <tr>${generateRow(1)}</tr>
-                            <tr>${generateRow(0)}</tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table class="answers-table">
+                    <thead><tr>${headerHtml}</tr></thead>
+                    <tbody>
+                        <tr>${generateRow(1)}</tr>
+                        <tr>${generateRow(0)}</tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     `;
     updateNavButtons();
 }
 
-/**
- * 5. Ma'lumotlarni yangilash
- */
+// Global window funksiyalari (onchange va onclick uchun)
 window.updateAnswer = function(questionIndex, value) {
     if (studentsData[currentStudentIndex]) {
         studentsData[currentStudentIndex].answers[questionIndex] = value;
-        
-        // Belgilangan zahoti qizil rangni o'chirish
         const table = document.querySelector('.answers-table');
         if (table) {
             const headers = table.querySelectorAll('thead th');
-            headers[questionIndex + 1].classList.remove('header-error');
+            if(headers[questionIndex + 1]) headers[questionIndex + 1].classList.remove('header-error');
             const cells = table.querySelectorAll(`td:nth-child(${questionIndex + 2})`);
             cells.forEach(c => c.classList.remove('cell-error'));
         }
@@ -182,16 +174,28 @@ window.updateName = function(newName) {
     if (studentsData[currentStudentIndex]) {
         studentsData[currentStudentIndex].name = newName;
         const input = document.getElementById('studentNameInput');
-        if (newName.trim() !== "") input.classList.remove('input-error');
+        if (input && newName.trim() !== "") input.classList.remove('input-error');
+    }
+};
+
+window.deleteCurrentStudent = function() {
+    if (studentsData.length > 1) {
+        if (confirm("Haqiqatdan ham o'chirmoqchimisiz?")) {
+            studentsData.splice(currentStudentIndex, 1);
+            currentStudentIndex = Math.max(0, currentStudentIndex - 1);
+            displayCurrentStudent();
+        }
+    } else {
+        alert("Kamida bitta o'quvchi bo'lishi shart!");
     }
 };
 
 /**
- * 6. Boshqaruv
+ * Oldingi/Keyingi tugmalarini boshqarish
  */
 function updateNavButtons() {
-    prevStudentBtn.disabled = currentStudentIndex === 0;
-    nextStudentBtn.disabled = currentStudentIndex === studentsData.length - 1;
+    prevStudentBtn.disabled = (currentStudentIndex === 0);
+    nextStudentBtn.disabled = (currentStudentIndex === studentsData.length - 1);
 }
 
 prevStudentBtn.onclick = () => {
@@ -210,20 +214,8 @@ nextStudentBtn.onclick = () => {
 
 addStudentBtn.onclick = addStudent;
 
-window.deleteCurrentStudent = function() {
-    if (studentsData.length > 1) {
-        if (confirm("Ushbu o'quvchini ro'yxatdan o'chirasizmi?")) {
-            studentsData.splice(currentStudentIndex, 1);
-            currentStudentIndex = Math.max(0, currentStudentIndex - 1);
-            displayCurrentStudent();
-        }
-    } else {
-        alert("Kamida bitta o'quvchi bo'lishi shart!");
-    }
-};
-
 /**
- * 7. Excel va Yakunlash
+ * Excel faylni yuklash va o'qish
  */
 uploadExcelInput.onchange = (e) => {
     const file = e.target.files[0];
@@ -238,31 +230,48 @@ uploadExcelInput.onchange = (e) => {
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
 
-            const imported = json.slice(1).filter(row => row.length > 0).map(row => ({
-                name: row[0] ? String(row[0]).trim() : "Noma'lum",
-                answers: row.slice(1, questionCount + 1).map(v => {
-                    let val = parseInt(v);
-                    return (val === 0 || val === 1) ? val : null;
-                })
-            }));
+            if (json.length > 0) {
+                const excelColCount = json[0].length - 1; 
 
-            if (imported.length > 0) {
-                studentsData = imported;
+                if (excelColCount !== questionCount) {
+                    if (confirm(`Yuklangan faylda ${excelColCount} ta savol bor. Tizimni bunga moslaymizmi?`)) {
+                        questionCount = excelColCount;
+                        localStorage.setItem('questionCount', questionCount);
+                    } else {
+                        return;
+                    }
+                }
+
+                studentsData = json.slice(1).filter(row => row.length > 0).map(row => ({
+                    name: row[0] ? String(row[0]).trim() : "Noma'lum",
+                    answers: Array.from({length: questionCount}, (_, i) => {
+                        let v = parseInt(row[i + 1]);
+                        return (v === 0 || v === 1) ? v : null;
+                    })
+                }));
+
                 currentStudentIndex = 0;
                 displayCurrentStudent();
-                clearDataBtn.style.display = 'inline-flex';
+                if (clearDataBtn) clearDataBtn.style.display = 'inline-flex';
             }
         } catch (err) {
-            alert("Excel faylni o'qishda xatolik!");
+            alert("Excel o'qishda xato!");
         }
     };
     reader.readAsArrayBuffer(file);
 };
 
+/**
+ * YAKUNLASH VA NATIJANI CHIQARISH
+ */
 finishBtn.onclick = async () => {
-    if (!validateCurrentStudent()) return;
+    if (!validateCurrentStudent()) {
+        alert("Iltimos, barcha maydonlarni to'ldiring!");
+        return;
+    }
     
     finishBtn.disabled = true;
+    const originalText = finishBtn.innerHTML;
     finishBtn.innerHTML = '⌛ Hisoblanmoqda...';
 
     try {
@@ -271,16 +280,111 @@ finishBtn.onclick = async () => {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ students: studentsData })
         });
-        const result = await response.json();
-        console.log("Natijalar:", result);
-        alert("Hisoblash yakunlandi! Natijalarni konsolda ko'rishingiz mumkin.");
+
+        if (!response.ok) throw new Error("Serverdan javob olishda xatolik!");
+
+        const results = await response.json(); // app.py dan kelgan list
+        
+        // Natijalar oynasini ko'rsatish
+        if (resultContainer && resultContent) {
+            resultContainer.style.display = 'block';
+            
+            let html = `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse: collapse; margin-top:15px; background: white;">
+                        <thead>
+                            <tr style="background:#27ae60; color: white;">
+                                <th style="border:1px solid #ddd; padding:10px;">O'quvchi</th>
+                                <th style="border:1px solid #ddd; padding:10px;">To'g'ri javob</th>
+                                <th style="border:1px solid #ddd; padding:10px;">Vaznli ball</th>
+                                <th style="border:1px solid #ddd; padding:10px;">Theta (Θ)</th>
+                                <th style="border:1px solid #ddd; padding:10px;">Yakuniy ball</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            results.forEach(row => {
+                html += `
+                    <tr>
+                        <td style="border:1px solid #ddd; padding:10px; font-weight:bold;">${row.name}</td>
+                        <td style="border:1px solid #ddd; padding:10px; text-align:center;">${row.raw_score}</td>
+                        <td style="border:1px solid #ddd; padding:10px; text-align:center;">${row.weighted_score}</td>
+                        <td style="border:1px solid #ddd; padding:10px; text-align:center;">${row.theta}</td>
+                        <td style="border:1px solid #ddd; padding:10px; text-align:center; font-weight:bold; color:#2c3e50;">${row.score}</td>
+                    </tr>`;
+            });
+            
+            html += `</tbody></table></div>`;
+            
+            // Natijalar jadvalining oxiriga qo'shiladigan qism
+            html += `</tbody></table>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button onclick="downloadExcelFile()" class="btn success" style="padding: 10px 20px; cursor: pointer;">
+                        📥 Natijalarni Excelda yuklab olish
+                    </button>
+                </div>`;
+            resultContent.innerHTML = html;
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
     } catch (err) {
-        alert("Server bilan aloqa xatosi!");
+        console.error("Xatolik:", err);
+        alert("Xatolik yuz berdi: " + err.message);
     } finally {
         finishBtn.disabled = false;
-        finishBtn.innerHTML = '✅ Yakunlash va Natija';
+        finishBtn.innerHTML = originalText;
     }
 };
 
-// Dasturni ishga tushirish
+/**
+ * Serverdan Excel faylni yuklab olish funksiyasi
+ */
+window.downloadExcelFile = async function() {
+    // Agar o'quvchilar ma'lumoti bo'lmasa, yuklab olib bo'lmaydi
+    if (studentsData.length === 0) {
+        alert("Yuklab olish uchun ma'lumot mavjud emas!");
+        return;
+    }
+
+    try {
+        const response = await fetch('/download_excel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ students: studentsData })
+        });
+
+        if (!response.ok) throw new Error("Faylni shakllantirishda xatolik yuz berdi.");
+
+        // Faylni blob formatida qabul qilish
+        const blob = await response.blob();
+        
+        // Brauzerda vaqtinchalik havola yaratish
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "Rasch_Model_Natijalari.xlsx"; // Yuklanadigan fayl nomi
+        document.body.appendChild(a);
+        a.click();
+        
+        // Havolani tozalash
+        window.URL.revokeObjectURL(url);
+        a.remove();
+        
+    } catch (err) {
+        console.error("Excel yuklashda xato:", err);
+        alert("Excel faylni yuklab olishda xatolik: " + err.message);
+    }
+};
+
+if (clearDataBtn) {
+    clearDataBtn.onclick = () => {
+        if (confirm("Barcha ma'lumotlar o'chirib yuborilsinmi?")) {
+            initApp();
+        }
+    };
+}
+
+// Sahifa yuklanganda ilovani boshlash
 document.addEventListener('DOMContentLoaded', initApp);
